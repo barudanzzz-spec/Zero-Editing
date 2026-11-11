@@ -6,6 +6,7 @@ import {
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as MediaLibrary from 'expo-media-library';
+import * as Linking from 'expo-linking';
 import { Ionicons } from '@expo/vector-icons';
 
 const C = {
@@ -108,7 +109,18 @@ export default function HomeScreen() {
   function openTool(tool: Tool) {
     if (tool.kind === 'image') { pick('image'); return; }
     if (tool.kind === 'video') { pick('video'); return; }
-    Alert.alert(tool.title, 'Fitur ini memerlukan layanan AI online dan server pemrosesan. Tombol ini belum menjalankan proses AI, jadi tidak akan mengklaim hasil palsu.');
+    if (tool.title === 'AI Enhance' || tool.title === 'AI Video Enhance') {
+      Alert.alert(
+        'AI Upscaler Gratis',
+        'Pilih file kembali di browser. Pemrosesan bergantung pada dukungan WebGPU/WebGL perangkat.',
+        [
+          {text:'Batal', style:'cancel'},
+          {text:'Buka AI', onPress:()=>Linking.openURL('https://free.upscaler.video/')}
+        ]
+      );
+      return;
+    }
+    Alert.alert(tool.title, 'Background Remover belum tersedia.');
   }
 
   function resetEditor() { setRotation(0); setFlipH(false); setFlipV(false); setQuality('high'); setResizePreset('original'); }

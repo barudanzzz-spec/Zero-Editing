@@ -14,11 +14,21 @@
           "photosPermission": "Izinkan Zero Editing memilih foto dan video dari galeri.",
           "cameraPermission": "Izinkan Zero Editing mengambil foto."
         }
-      ]
+      ],
+      "expo-font"
     ],
     "android": {
       "package": "com.zeroediting.app",
-      "versionCode": 1
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "619738d0-a37a-4bdd-8bc4-abf0e1649af0"
+      }
     }
   }
 }

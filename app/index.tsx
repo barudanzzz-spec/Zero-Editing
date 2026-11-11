@@ -44,6 +44,7 @@ export default function HomeScreen() {
   const [flipH, setFlipH] = useState(false);
   const [flipV, setFlipV] = useState(false);
   const [quality, setQuality] = useState<'standard'|'high'>('high');
+  const [resizePreset, setResizePreset] = useState<'original'|'1080'|'720'>('original');
   const [screen, setScreen] = useState<'home'|'editor'>('home');
 
   const isImage = media?.type === 'image';
@@ -82,8 +83,13 @@ export default function HomeScreen() {
     try {
       const actions: ImageManipulator.Action[] = [];
       if (rotation % 360) actions.push({rotate: rotation});
-      if (flipH || flipV) if (flipH) actions.push({flip: ImageManipulator.FlipType.Horizontal});
+      if (flipH) actions.push({flip: ImageManipulator.FlipType.Horizontal});
       if (flipV) actions.push({flip: ImageManipulator.FlipType.Vertical});
+      if (resizePreset !== 'original' && media.width && media.height) {
+        const targetWidth = Math.min(Number(resizePreset), media.width);
+        const targetHeight = Math.round(media.height * targetWidth / media.width);
+        actions.push({resize: {width: targetWidth, height: targetHeight}});
+      }
       const result = await ImageManipulator.manipulateAsync(media.uri, actions, {
         compress: quality === 'high' ? 1 : 0.82, format: ImageManipulator.SaveFormat.JPEG
       });
@@ -105,7 +111,7 @@ export default function HomeScreen() {
     Alert.alert(tool.title, 'Fitur ini memerlukan layanan AI online dan server pemrosesan. Tombol ini belum menjalankan proses AI, jadi tidak akan mengklaim hasil palsu.');
   }
 
-  function resetEditor() { setRotation(0); setFlipH(false); setFlipV(false); setQuality('high'); }
+  function resetEditor() { setRotation(0); setFlipH(false); setFlipV(false); setQuality('high'); setResizePreset('original'); }
   const header = <View style={s.header}>
     <View style={s.logo}><Ionicons name="aperture" size={25} color="#fff" /></View>
     <View style={{flex:1}}>
@@ -137,6 +143,10 @@ export default function HomeScreen() {
           <Pressable style={s.control} onPress={()=>setFlipH(v=>!v)}><Ionicons name="swap-horizontal-outline" size={22} color={C.red}/><Text style={s.controlLabel}>Balik H</Text><Text style={s.controlState}>{flipH?'Aktif':'Nonaktif'}</Text></Pressable>
           <Pressable style={s.control} onPress={()=>setFlipV(v=>!v)}><Ionicons name="swap-vertical-outline" size={22} color={C.red}/><Text style={s.controlLabel}>Balik V</Text><Text style={s.controlState}>{flipV?'Aktif':'Nonaktif'}</Text></Pressable>
           <Pressable style={s.control} onPress={()=>pick('image')}><Ionicons name="images-outline" size={22} color={C.red}/><Text style={s.controlLabel}>Ganti Foto</Text></Pressable>
+        </View>
+        <Text style={s.sectionTitle}>UKURAN EKSPOR</Text>
+        <View style={s.qualityRow}>
+          {(['original','1080','720'] as const).map(value=><Pressable key={value} onPress={()=>setResizePreset(value)} style={[s.qualityOption,resizePreset===value&&s.qualityActive]}><Text style={[s.qualityTitle,resizePreset===value&&{color:C.white}]}>{value==='original'?'Asli':`${value} px`}</Text><Text style={s.qualityDesc}>{value==='original'?'Ukuran awal':'Lebar maksimal'}</Text></Pressable>)}
         </View>
         <Text style={s.sectionTitle}>KUALITAS EKSPOR</Text>
         <View style={s.qualityRow}>
